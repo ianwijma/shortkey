@@ -1,0 +1,1 @@
+# Shortkey - Cross universe shortcuts
