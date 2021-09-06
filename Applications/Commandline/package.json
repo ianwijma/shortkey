@@ -1,0 +1,30 @@
+{
+  "name": "shortkey",
+  "version": "0.0.1",
+  "main": "index.js",
+  "bin": {
+    "shortkey": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "package": "pkg ."
+  },
+  "pkg": {
+    "scripts": "build/**/*.js",
+    "outputPath": "bin"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "consola": "^2.15.3",
+    "y18n": "^5.0.8",
+    "yargs": "^17.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^16.7.10",
+    "@types/y18n": "^5.0.0",
+    "@types/yargs": "^17.0.2",
+    "pkg": "^5.3.1",
+    "tsc": "^2.0.3",
+    "typescript": "^4.4.2"
+  }
+}
