@@ -19,8 +19,10 @@ export default function logger(
   argv: Arguments<LoggerOptions>,
   context: string | undefined = undefined
 ) {
+  const level = argv.verbose === 0 ? 3 : argv.verbose;
+  console.error(level);
   const consolaLogger = consola.create({
-    level: argv.verbose,
+    level,
   });
 
   function createLogger(level: TargetLevels, context: string | undefined) {

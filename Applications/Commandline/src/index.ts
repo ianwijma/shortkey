@@ -2,7 +2,6 @@
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import logger from "./utils/logging";
 
 yargs(hideBin(process.argv))
   // Use the commands directory to scaffold.
