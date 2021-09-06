@@ -4,9 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const consola_1 = __importDefault(require("consola"));
-function logger(argv, context = undefined) {
+function logger(context = undefined, argv = undefined) {
+    let level = argv?.verbose ?? 3;
+    if (level === 0)
+        level = 3;
     const consolaLogger = consola_1.default.create({
-        level: argv.verbose,
+        level,
     });
     function createLogger(level, context) {
         return function loggerFunction(msg, ...args) {

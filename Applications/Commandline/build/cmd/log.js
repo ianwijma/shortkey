@@ -11,7 +11,7 @@ const builder = (yargs) => yargs.positional("message", { type: "string", demandO
 exports.builder = builder;
 const handler = (argv) => {
     const { message } = argv;
-    const l = (0, logging_1.default)(argv);
+    const l = (0, logging_1.default)("log", argv);
     l.fatal(message);
     l.error(message);
     l.warn(message);

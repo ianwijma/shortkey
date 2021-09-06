@@ -13,7 +13,7 @@ export const builder: CommandBuilder<Options, Options> = (yargs) =>
 
 export const handler = (argv: Arguments<Options>): void => {
   const { message } = argv;
-  const l = logger(argv);
+  const l = logger("log", argv);
 
   l.fatal(message);
   l.error(message);

@@ -1,5 +1,14 @@
-import consola, { Consola, ConsolaLogObject, LogLevel } from "consola";
+import consola, { ConsolaLogObject, LogLevel } from "consola";
 import { Arguments } from "yargs";
+
+export type LoggingFunction = (
+  msg: ConsolaLogObject | any,
+  ...args: any[]
+) => void;
+
+export type LoggingObject = {
+  [key in TargetLevels]: LoggingFunction;
+};
 
 export type LoggerOptions = {
   verbose: LogLevel;
@@ -16,16 +25,20 @@ type TargetLevels =
   | "trace";
 
 export default function logger(
-  argv: Arguments<LoggerOptions>,
-  context: string | undefined = undefined
-) {
-  const level = argv.verbose === 0 ? 3 : argv.verbose;
-  console.error(level);
+  context: string | undefined = undefined,
+  argv: Arguments<LoggerOptions> | undefined = undefined
+): LoggingObject {
+  let level = argv?.verbose ?? 3;
+  if (level === 0) level = 3;
+
   const consolaLogger = consola.create({
     level,
   });
 
-  function createLogger(level: TargetLevels, context: string | undefined) {
+  function createLogger(
+    level: TargetLevels,
+    context: string | undefined
+  ): LoggingFunction {
     return function loggerFunction(
       msg: ConsolaLogObject | any,
       ...args: any[]
