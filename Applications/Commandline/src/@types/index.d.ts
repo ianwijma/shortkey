@@ -18,9 +18,24 @@ export type TupleReturnError = [ErrorObject, any];
 export type TupleReturnSuccess<T> = [ErrorObject | null, T];
 export type TupleReturn<T> = TupleReturnError | TupleReturnSuccess<T>;
 
-export type MethodConfig = {
-  methods: [];
-};
-export type AddonConfig = {
+export interface AddonConfig {
+  addon: string;
+  path: string;
+}
+
+export interface MethodConfig {
+  addons: AddonConfig[];
+}
+
+export interface MethodsConfig {
+  methods: {
+    [key: string]: string;
+  };
+}
+export interface AddonConfig {
   addons: [];
-};
+}
+
+export interface MethodImport {
+  handle: Function;
+}

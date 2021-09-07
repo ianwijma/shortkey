@@ -11,6 +11,13 @@ export function returnError(errorObject: ErrorObject): TupleReturnError {
   return [errorObject, null];
 }
 
+export function returnErrorFromString(
+  exitCode: ExitCodes,
+  error: string
+): TupleReturnError {
+  return returnError(constructErrorObjectFromString(exitCode, error));
+}
+
 export function constructErrorObject(
   exitCode: ExitCodes,
   error: string | Error

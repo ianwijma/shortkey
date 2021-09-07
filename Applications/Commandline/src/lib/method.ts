@@ -1,64 +1,81 @@
 import {
   AddonConfig,
   ExecuteObject,
-  MethodConfig,
+  MethodsConfig,
   MethodId,
   TupleReturn,
+  MethodConfig,
+  MethodImport,
 } from "../@types";
 import { loadAddons } from "./addon";
-import { returnError, returnSuccess } from "./common";
+import { returnError, returnErrorFromString, returnSuccess } from "./common";
+import { readConfigFile } from "./config";
+import { ExitCodes } from "./exitCodes";
 
 export async function runMethod(
   methodId: MethodId
 ): Promise<TupleReturn<ExecuteObject>> {
-  const [loadErr, methodConfig] = await loadMethods();
-  if (loadErr) return returnError(loadErr);
+  const [methodErr, method] = await loadMethodConfig(methodId);
+  if (methodErr) return returnError(methodErr);
 
-  const [executeErr, results] = await executeMethod(methodId, methodConfig);
+  const [executeErr, results] = await executeMethod(method);
   if (executeErr) return returnError(executeErr);
 
   return returnSuccess(results);
 }
 
-async function loadMethods(): Promise<TupleReturn<MethodConfig>> {
+async function loadMethods(): Promise<TupleReturn<MethodsConfig>> {
   const [loadErr, addonConfig] = await loadAddons();
   if (loadErr) return returnError(loadErr);
 
-  const [readErr, methodConfig] = await readMethods(addonConfig);
+  const [readErr, methodsConfig] = await readMethods(addonConfig);
   if (readErr) return returnError(readErr);
 
-  const [err, validatedMethodConfig] = validateMethodConfig(
+  const [err, validatedMethodsConfig] = validateMethodsConfig(
     addonConfig,
-    methodConfig
+    methodsConfig
   );
   if (err) return returnError(err);
 
-  return returnSuccess(validatedMethodConfig);
+  return returnSuccess(validatedMethodsConfig);
 }
 
 async function executeMethod(
-  methodId: MethodId,
   methodConfig: MethodConfig
 ): Promise<TupleReturn<ExecuteObject>> {
-  const obj: ExecuteObject = {};
-  return returnSuccess(obj);
+  const { addons, methods } = methodConfig;
+  if (!(methodId in methods)) {
+    return returnErrorFromString(
+      ExitCodes.METHOD_NOT_FOUND,
+      `Unable to find method with ID=${methodId}`
+    );
+  }
+
+  const [loadErr, method] = await loadMethodConfig(methods[methodId]);
+  if (loadErr) return returnError(loadErr);
+
+  return returnSuccess({});
+}
+
+async function loadMethodConfig(
+  methodPath: string
+): Promise<TupleReturn<MethodImport>> {
+  return readConfigFile(methodPath);
 }
 
 async function readMethods(
   addonConfig: AddonConfig
-): Promise<TupleReturn<MethodConfig>> {
-  const obj: MethodConfig = {
-    methods: [],
-  };
-  return returnSuccess(obj); // TODO: Make work
+): Promise<TupleReturn<MethodsConfig>> {
+  return returnSuccess({
+    methods: {},
+  }); // TODO: Make work
 }
 
-function validateMethodConfig(
+function validateMethodsConfig(
   addonConfig: AddonConfig,
-  methodConfig: MethodConfig
-): TupleReturn<MethodConfig> {
-  const obj: MethodConfig = {
-    methods: [],
-  };
-  return returnSuccess(obj); // TODO: Make work
+  methodsConfig: MethodsConfig
+): TupleReturn<MethodsConfig> {
+  return returnSuccess({
+    methods: {},
+  }); // TODO: Make work
 }

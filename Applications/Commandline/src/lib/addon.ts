@@ -1,9 +1,5 @@
 import { AddonConfig, TupleReturn } from "../@types";
-import {
-  constructErrorObjectFromString,
-  returnError,
-  returnSuccess,
-} from "./common";
+import { returnError, returnErrorFromString, returnSuccess } from "./common";
 import { ADDON_FOLDER } from "./paths";
 import { pathExists } from "fs-extra";
 import { ExitCodes } from "./exitCodes";
@@ -25,11 +21,9 @@ export async function locateAddonFolder(): Promise<TupleReturn<string>> {
 
   const addonFolder = path.join(configFolder, ADDON_FOLDER);
   if (!(await pathExists(addonFolder)))
-    return returnError(
-      constructErrorObjectFromString(
-        ExitCodes.FOLDER_NOT_FOUND,
-        `Addon folder does not exists @ ${addonFolder}`
-      )
+    return returnErrorFromString(
+      ExitCodes.FOLDER_NOT_FOUND,
+      `Addon folder does not exists @ ${addonFolder}`
     );
 
   return returnSuccess(addonFolder);
