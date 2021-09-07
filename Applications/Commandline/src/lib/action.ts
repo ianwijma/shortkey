@@ -33,8 +33,6 @@ async function loadAction(
 async function executeAction(
   actionConfig: ActionConfig
 ): Promise<TupleReturn<ExecuteObject>> {
-  const [locateErr];
-
   return returnSuccess({});
 }
 

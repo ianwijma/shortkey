@@ -19,8 +19,19 @@ export type TupleReturnError = [ErrorObject, any];
 export type TupleReturnSuccess<T> = [ErrorObject | null, T];
 export type TupleReturn<T> = TupleReturnError | TupleReturnSuccess<T>;
 
+export type ActionStepId = string;
+export interface ActionStep {
+  id: ActionStepId;
+  nextSteps: ActionStepId[];
+  method: string;
+  methodSettings: { [key: string]: any }; // TODO: refine the settings
+}
+
 export interface ActionConfig {
-  methods: MethodConfig[];
+  firstStep: ActionStepId;
+  steps: {
+    [key: string]: ActionStep;
+  };
 }
 
 export interface AddonConfig {
