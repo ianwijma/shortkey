@@ -17,21 +17,39 @@ export async function locateConfigFolder(): Promise<TupleReturn<string>> {
 
   return returnErrorFromString(
     ExitCodes.FOLDER_NOT_FOUND,
-    `config folder does not exists @ ${configPath} or ${configPathAlt}`
+    `config folder does not found: ${configPath} or ${configPathAlt}`
   );
 }
 
-export async function readConfigFile(path: string, fallback = null) {
-  const contentStr = await readFile(path, "utf8");
-  const content = YAML.parse(contentStr);
-  return content?.data ?? fallback;
+export interface ConfigContent<T> {
+  data: T;
+  version: number;
 }
 
-export async function writeConfigFile(
+export async function readConfigFile<T>(
+  targetVersion: number,
   path: string,
-  data: object,
+  fallback: T
+): Promise<TupleReturn<T>> {
+  const contentStr = await readFile(path, "utf8");
+  const content: ConfigContent<T> = YAML.parse(contentStr);
+
+  const { data = fallback, version } = content;
+  if (targetVersion !== version) {
+    return returnErrorFromString(
+      ExitCodes.VERSION_MISS_MATCH,
+      `Target version ${targetVersion}, does not math config version ${version}`
+    );
+  }
+
+  return returnSuccess<T>(data);
+}
+
+export async function writeConfigFile<T>(
+  path: string,
+  data: T,
   version: number = 1
-) {
+): Promise<void> {
   const content = { version, data };
   const contentStr = YAML.stringify(content);
   await writeFile(path, contentStr, "utf8");

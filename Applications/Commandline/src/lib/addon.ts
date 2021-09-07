@@ -23,7 +23,7 @@ export async function locateAddonFolder(): Promise<TupleReturn<string>> {
   if (!(await pathExists(addonFolder)))
     return returnErrorFromString(
       ExitCodes.FOLDER_NOT_FOUND,
-      `Addon folder does not exists @ ${addonFolder}`
+      `Addon folder does not found: ${addonFolder}`
     );
 
   return returnSuccess(addonFolder);
