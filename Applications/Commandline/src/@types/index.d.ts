@@ -13,9 +13,9 @@ export interface ExecuteObject {
 
 export type MethodId = string;
 
-export type TupleErrorReturn = [ErrorObject];
-export type TupleSuccessReturn<T> = [undefined, T];
-export type TupleReturn<T> = TupleErrorReturn | TupleSuccessReturn<T>;
+export type TupleReturnError = [ErrorObject];
+export type TupleReturnSuccess<T> = [undefined, T];
+export type TupleReturn<T> = TupleReturnError | TupleReturnSuccess<T>;
 
 export type MethodConfig = {
   methods: [];

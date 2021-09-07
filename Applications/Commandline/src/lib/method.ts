@@ -5,7 +5,7 @@ import {
   MethodId,
   TupleReturn,
 } from "../@types";
-import loadAddons from "./addon";
+import { loadAddons } from "./addon";
 import { returnError, returnSuccess } from "./common";
 
 export async function runMethod(
