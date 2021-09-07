@@ -1,5 +1,5 @@
 import type { Arguments, CommandBuilder } from "yargs";
-import { MethodId } from "../@types/common";
+import { MethodId } from "../@types";
 import { handleError, handleSuccess } from "../lib/common";
 import { runMethod } from "../lib/method";
 import logger, { LoggerOptions } from "../utils/logging";

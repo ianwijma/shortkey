@@ -1,17 +1,14 @@
 import { exit } from "yargs";
-import { ErrorObject, TupleMethodReturn } from "../@types/common";
+import { ErrorObject, TupleErrorReturn, TupleSuccessReturn } from "../@types";
 import { LoggingObject } from "../utils/logging";
 import { ExitCodes } from "./exitCodes";
 
-export function returnSuccess(value: any): TupleMethodReturn {
+export function returnSuccess<T>(value: T): TupleSuccessReturn<T> {
   return [, value];
 }
 
-export function returnError(
-  exitCode: ExitCodes,
-  error: string | Error
-): TupleMethodReturn {
-  return [constructErrorObject(exitCode, error)];
+export function returnError(errorObject: ErrorObject): TupleErrorReturn {
+  return [errorObject];
 }
 
 export function constructErrorObject(
