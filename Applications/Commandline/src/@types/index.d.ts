@@ -13,8 +13,9 @@ export interface ExecuteObject {
 
 export type MethodId = string;
 
-export type TupleReturnError = [ErrorObject];
-export type TupleReturnSuccess<T> = [undefined, T];
+// TODO: Get rid of the `any` keyword
+export type TupleReturnError = [ErrorObject, any];
+export type TupleReturnSuccess<T> = [ErrorObject | null, T];
 export type TupleReturn<T> = TupleReturnError | TupleReturnSuccess<T>;
 
 export type MethodConfig = {

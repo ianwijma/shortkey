@@ -4,11 +4,11 @@ import { LoggingObject } from "../utils/logging";
 import { ExitCodes } from "./exitCodes";
 
 export function returnSuccess<T>(value: T): TupleReturnSuccess<T> {
-  return [undefined, value];
+  return [null, value];
 }
 
 export function returnError(errorObject: ErrorObject): TupleReturnError {
-  return [errorObject];
+  return [errorObject, null];
 }
 
 export function constructErrorObject(
