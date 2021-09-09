@@ -1,81 +1,105 @@
+import { pathExists } from "fs-extra";
+import path from "path";
 import {
-  AddonConfig,
   ExecuteObject,
-  MethodsConfig,
   MethodId,
   TupleReturn,
-  MethodConfig,
-  MethodImport,
+  MethodSettings,
+  ImportedMethod,
+  AddonName,
+  MethodName,
 } from "../@types";
-import { loadAddons } from "./addon";
-import { returnError, returnErrorFromString, returnSuccess } from "./common";
-import { readConfigFile } from "./config";
+import { locateAddon, locateAddonsFolder } from "./addon";
+import {
+  returnError,
+  returnErrorFromError,
+  returnErrorFromString,
+  returnSuccess,
+} from "./common";
 import { ExitCodes } from "./exitCodes";
 
-export async function runMethod(
-  methodId: MethodId
+export async function executeMethod(
+  methodId: string,
+  methodSettings: MethodSettings
 ): Promise<TupleReturn<ExecuteObject>> {
-  const [methodErr, method] = await loadMethodConfig(methodId);
-  if (methodErr) return returnError(methodErr);
+  const [loadErr, method] = await loadMethod(methodId);
+  if (loadErr) return returnError(loadErr);
 
-  const [executeErr, results] = await executeMethod(method);
-  if (executeErr) return returnError(executeErr);
+  const [validationErr] = validateMethodSettings(method, methodSettings);
+  if (validationErr) return returnError(validationErr);
+
+  const [executionError, results] = await runMethod(method, methodSettings);
+  if (executionError) return returnError(executionError);
 
   return returnSuccess(results);
 }
 
-async function loadMethods(): Promise<TupleReturn<MethodsConfig>> {
-  const [loadErr, addonConfig] = await loadAddons();
-  if (loadErr) return returnError(loadErr);
-
-  const [readErr, methodsConfig] = await readMethods(addonConfig);
-  if (readErr) return returnError(readErr);
-
-  const [err, validatedMethodsConfig] = validateMethodsConfig(
-    addonConfig,
-    methodsConfig
-  );
-  if (err) return returnError(err);
-
-  return returnSuccess(validatedMethodsConfig);
-}
-
-async function executeMethod(
-  methodConfig: MethodConfig
+async function runMethod(
+  method: ImportedMethod,
+  methodSettings: MethodSettings
 ): Promise<TupleReturn<ExecuteObject>> {
-  const { addons, methods } = methodConfig;
-  if (!(methodId in methods)) {
-    return returnErrorFromString(
-      ExitCodes.METHOD_NOT_FOUND,
-      `Unable to find method with ID=${methodId}`
-    );
-  }
+  const { handle } = method;
 
-  const [loadErr, method] = await loadMethodConfig(methods[methodId]);
-  if (loadErr) return returnError(loadErr);
+  try {
+    await handle(methodSettings);
+  } catch (err) {
+    return returnErrorFromError(ExitCodes.METHOD_EXECUTION_ERROR, err as Error);
+  }
 
   return returnSuccess({});
 }
 
-async function loadMethodConfig(
-  methodPath: string
-): Promise<TupleReturn<MethodImport>> {
-  return readConfigFile(methodPath);
+function validateMethodSettings(
+  method: ImportedMethod,
+  methodSettings: MethodSettings
+): TupleReturn<null> {
+  // TODO: Validate the method settings
+  return returnSuccess(null);
 }
 
-async function readMethods(
-  addonConfig: AddonConfig
-): Promise<TupleReturn<MethodsConfig>> {
-  return returnSuccess({
-    methods: {},
-  }); // TODO: Make work
+async function loadMethod(
+  methodId: MethodId
+): Promise<TupleReturn<ImportedMethod>> {
+  const [addonName, methodName] = unserializeMethodId(methodId);
+
+  const [locateErr, methodFile] = await locateMethod(addonName, methodName);
+  if (locateErr) return returnError(locateErr);
+
+  const method: ImportedMethod = await import(methodFile);
+  return returnSuccess(method);
 }
 
-function validateMethodsConfig(
-  addonConfig: AddonConfig,
-  methodsConfig: MethodsConfig
-): TupleReturn<MethodsConfig> {
-  return returnSuccess({
-    methods: {},
-  }); // TODO: Make work
+async function locateMethod(
+  addonName: AddonName,
+  methodName: MethodName
+): Promise<TupleReturn<string>> {
+  const [locateErr, addonFolder] = await locateAddon(addonName);
+  if (locateErr) return returnError(locateErr);
+
+  const methodFile = path.join(addonFolder, `${methodName}.js`);
+  if (!(await pathExists(methodFile))) {
+    return returnErrorFromString(
+      ExitCodes.FILE_NOT_FOUND,
+      `Addon is not found: ${addonFolder}`
+    );
+  }
+
+  return returnSuccess(methodFile);
+}
+
+function unserializeMethodId(methodId: MethodId): [AddonName, MethodName] {
+  const unserializeRegex = /shortkey:\/\/addon\/(\S+)\/(\S+)\//;
+  if (unserializeRegex.test(methodId)) {
+    const result = unserializeRegex.exec(methodId);
+    if (result) return [result[0] as AddonName, result[1] as MethodName];
+  }
+
+  throw new Error(`Given method ID has incorrect formatting ${methodId}`);
+}
+
+function serializeMethodId(
+  addonName: AddonName,
+  methodName: MethodName
+): MethodId {
+  return `shortkey://addon/${addonName}/${methodName}/`;
 }
