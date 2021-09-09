@@ -23,7 +23,7 @@ export async function executeAddon(
   const [configPathErr, configPath] = await locateAddonConfigFiles(addonName);
   if (configPathErr) return returnError(configPathErr);
 
-  const [configErr, addonSettings] = await readConfigFile(1, configPath, {});
+  const [configErr, addonSettings] = await readConfigFile(configPath, {}, 1);
   if (configErr) return returnError(configErr);
 
   const [loadErr, addon] = await loadAddon(addonName);

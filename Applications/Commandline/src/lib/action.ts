@@ -33,7 +33,7 @@ async function loadAction(
   const [locateErr, actionConfigFile] = await locateActionConfigFile(actionId);
   if (locateErr) return returnError(locateErr);
 
-  const [readErr, actionConfig] = await readConfigFile(1, actionConfigFile, {});
+  const [readErr, actionConfig] = await readConfigFile(actionConfigFile, {}, 1);
   if (readErr) return returnError(readErr);
 
   return returnSuccess(actionConfig);

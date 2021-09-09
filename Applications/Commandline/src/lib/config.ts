@@ -1,11 +1,19 @@
 import { TupleReturn } from "../@types";
 import { homedir } from "os";
 import path from "path";
-import { CONFIG_PATH, CONFIG_PATH_ALT } from "./paths";
-import { pathExists, readFile, writeFile } from "fs-extra";
+import {
+  ADDONS_FOLDER,
+  ACTIONS_FOLDER,
+  CONFIG_PATH,
+  CONFIG_PATH_ALT,
+} from "./paths";
+import { mkdir, pathExists, readFile, writeFile } from "fs-extra";
 import { returnErrorFromString, returnSuccess } from "./common";
 import { ExitCodes } from "./exitCodes";
 import YAML from "yaml";
+import logger from "../utils/logging";
+import { LogLevel } from "consola";
+import inquirer from "inquirer";
 
 export async function locateConfigFolder(): Promise<TupleReturn<string>> {
   const home = homedir();
@@ -27,9 +35,9 @@ export interface ConfigContent<T> {
 }
 
 export async function readConfigFile<T>(
-  targetVersion: number,
   path: string,
-  fallback: T
+  fallback: T,
+  targetVersion: number
 ): Promise<TupleReturn<T>> {
   const contentStr = await readFile(path, "utf8");
   const content: ConfigContent<T> = YAML.parse(contentStr);
@@ -53,4 +61,33 @@ export async function writeConfigFile<T>(
   const content = { version, data };
   const contentStr = YAML.stringify(content);
   await writeFile(path, contentStr, "utf8");
+}
+
+export async function ensureSetup(forceSetup: boolean = false): Promise<void> {
+  const [locateErr] = await locateConfigFolder();
+  if (locateErr) {
+    const { message } = locateErr;
+    logger("Attention", LogLevel.Error).error(message);
+    if (!forceSetup) {
+      const { confirm } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "confirm",
+          message: "Want to run the setup?",
+        },
+      ]);
+      if (confirm) await runSetup();
+    } else {
+      await runSetup();
+    }
+  }
+}
+
+async function runSetup() {
+  const home = homedir();
+  await mkdir(path.join(home, CONFIG_PATH));
+  await mkdir(path.join(home, CONFIG_PATH, ADDONS_FOLDER));
+  await mkdir(path.join(home, CONFIG_PATH, ACTIONS_FOLDER));
+
+  await writeConfigFile(path.join(home, CONFIG_PATH, `settings.yaml`), {}, 1);
 }

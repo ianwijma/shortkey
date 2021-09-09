@@ -3,7 +3,7 @@ import consola, { ConsolaLogObject, LogLevel } from "consola";
 export type LoggingFunction = (
   msg: ConsolaLogObject | any,
   ...args: any[]
-) => void;
+) => LoggingObject;
 
 export type LoggingObject = {
   [key in TargetLevels]: LoggingFunction;
@@ -26,22 +26,25 @@ type TargetLevels =
 let GLOBAL_LOG_LEVEL = 3;
 
 export default function logger(
-  context: string | undefined = undefined
+  context: string | undefined = undefined,
+  logLevelOverride: LogLevel | null = null
 ): LoggingObject {
+  const level = logLevelOverride ?? GLOBAL_LOG_LEVEL;
   const consolaLogger = consola.create({
-    level: GLOBAL_LOG_LEVEL,
+    level,
   });
 
   function createLogger(
-    level: TargetLevels,
+    targetLevel: TargetLevels,
     context: string | undefined
   ): LoggingFunction {
     return function loggerFunction(
       msg: ConsolaLogObject | any,
       ...args: any[]
-    ) {
+    ): LoggingObject {
       if (context) msg = `[${context}] ${msg}`;
-      consolaLogger[level](msg, ...args);
+      consolaLogger[targetLevel](msg, ...args);
+      return logger(context, level);
     };
   }
 

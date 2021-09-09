@@ -3,6 +3,7 @@ import { MethodId } from "../@types";
 import { handleError, handleSuccess } from "../lib/common";
 import { runAction } from "../lib/action";
 import logger, { LoggerOptions, setupLogLevel } from "../utils/logging";
+import { ensureSetup } from "../lib/config";
 
 type Options = LoggerOptions & {
   actionsId: MethodId;
@@ -20,6 +21,8 @@ export const handler = async (argv: Arguments<Options>): Promise<void> => {
   const { actionsId } = argv;
 
   l.debug("Received action id", actionsId);
+
+  await ensureSetup();
 
   const [err, result] = await runAction(actionsId);
   if (err) handleError(l, err);
