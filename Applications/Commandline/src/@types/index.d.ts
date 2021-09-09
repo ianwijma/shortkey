@@ -24,6 +24,8 @@ export type TupleReturnError = [ErrorObject, any];
 export type TupleReturnSuccess<T> = [ErrorObject | null, T];
 export type TupleReturn<T> = TupleReturnError | TupleReturnSuccess<T>;
 
+export type Settings =
+
 export type AddonSetting = string; // TODO: refine the settings
 export interface AddonSettings {
   [key: string]: AddonSetting;
@@ -31,20 +33,23 @@ export interface AddonSettings {
 
 export type MethodSetting = string; // TODO: refine the settings
 export interface MethodSettings {
-  [key: string]: MethodSetting;
   label: string; // name = static, label = change-able
+  value: any; 
+  [key: string]: MethodSetting;
 }
 
 export interface ImportedAddon {
   name: string;
+  description?: string;
   handle?: function;
-  settings: AddonSettings;
+  settings?: AddonSettings;
 }
 
 export interface ImportedMethod {
   name: string;
+  description?: string;
   handle: function;
-  settings: AddonSettings;
+  settings?: AddonSettings;
 }
 
 export type ActionStepId = string;
