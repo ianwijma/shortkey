@@ -8,8 +8,9 @@ import {
   ImportedMethod,
   AddonName,
   MethodName,
+  AddonSettings,
 } from "../@types";
-import { locateAddon, locateAddonsFolder } from "./addon";
+import { executeAddon as setupAddon, locateAddonFolder } from "./addon";
 import {
   returnError,
   returnErrorFromError,
@@ -22,26 +23,33 @@ export async function executeMethod(
   methodId: string,
   methodSettings: MethodSettings
 ): Promise<TupleReturn<ExecuteObject>> {
-  const [loadErr, method] = await loadMethod(methodId);
+  const [addonName, methodName] = unserializeMethodId(methodId);
+
+  const [addonSetupErr, [addonSettings]] = await setupAddon(addonName);
+  if (addonSetupErr) return returnError(addonSetupErr);
+
+  const [loadErr, method] = await loadMethod(addonName, methodName);
   if (loadErr) return returnError(loadErr);
 
-  const [validationErr] = validateMethodSettings(method, methodSettings);
-  if (validationErr) return returnError(validationErr);
-
-  const [executionError, results] = await runMethod(method, methodSettings);
-  if (executionError) return returnError(executionError);
+  const [methodExecErr, results] = await runMethod(
+    method,
+    addonSettings,
+    methodSettings
+  );
+  if (methodExecErr) return returnError(methodExecErr);
 
   return returnSuccess(results);
 }
 
 async function runMethod(
   method: ImportedMethod,
+  addonSettings: AddonSettings,
   methodSettings: MethodSettings
 ): Promise<TupleReturn<ExecuteObject>> {
   const { handle } = method;
 
   try {
-    await handle(methodSettings);
+    await handle(addonSettings, methodSettings);
   } catch (err) {
     return returnErrorFromError(ExitCodes.METHOD_EXECUTION_ERROR, err as Error);
   }
@@ -49,19 +57,10 @@ async function runMethod(
   return returnSuccess({});
 }
 
-function validateMethodSettings(
-  method: ImportedMethod,
-  methodSettings: MethodSettings
-): TupleReturn<null> {
-  // TODO: Validate the method settings
-  return returnSuccess(null);
-}
-
 async function loadMethod(
-  methodId: MethodId
+  addonName: AddonName,
+  methodName: MethodName
 ): Promise<TupleReturn<ImportedMethod>> {
-  const [addonName, methodName] = unserializeMethodId(methodId);
-
   const [locateErr, methodFile] = await locateMethod(addonName, methodName);
   if (locateErr) return returnError(locateErr);
 
@@ -73,7 +72,7 @@ async function locateMethod(
   addonName: AddonName,
   methodName: MethodName
 ): Promise<TupleReturn<string>> {
-  const [locateErr, addonFolder] = await locateAddon(addonName);
+  const [locateErr, addonFolder] = await locateAddonFolder(addonName);
   if (locateErr) return returnError(locateErr);
 
   const methodFile = path.join(addonFolder, `${methodName}.js`);

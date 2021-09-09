@@ -24,18 +24,27 @@ export type TupleReturnError = [ErrorObject, any];
 export type TupleReturnSuccess<T> = [ErrorObject | null, T];
 export type TupleReturn<T> = TupleReturnError | TupleReturnSuccess<T>;
 
-export interface ImportedMethodSettings {
-  [key: string]: any; // TODO: refine the settings
+export type AddonSetting = string; // TODO: refine the settings
+export interface AddonSettings {
+  [key: string]: AddonSetting;
 }
 
-export interface MethodSettings extends ImportedMethodSettings {
+export type MethodSetting = string; // TODO: refine the settings
+export interface MethodSettings {
+  [key: string]: MethodSetting;
   label: string; // name = static, label = change-able
+}
+
+export interface ImportedAddon {
+  name: string;
+  handle?: function;
+  settings: AddonSettings;
 }
 
 export interface ImportedMethod {
   name: string;
   handle: function;
-  settings: ImportedMethodSettings;
+  settings: AddonSettings;
 }
 
 export type ActionStepId = string;
