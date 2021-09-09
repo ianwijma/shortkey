@@ -1,5 +1,5 @@
 import type { Arguments, CommandBuilder } from "yargs";
-import logger, { LoggerOptions } from "../utils/logging";
+import logger, { LoggerOptions, setupLogLevel } from "../utils/logging";
 
 type Options = LoggerOptions & {
   message: string;
@@ -13,7 +13,8 @@ export const builder: CommandBuilder<Options, Options> = (yargs) =>
 
 export const handler = (argv: Arguments<Options>): void => {
   const { message } = argv;
-  const l = logger("log", argv);
+  setupLogLevel(argv.verbose);
+  const l = logger("log");
 
   l.fatal(message);
   l.error(message);

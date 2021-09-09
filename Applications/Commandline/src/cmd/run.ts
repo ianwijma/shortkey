@@ -2,7 +2,7 @@ import type { Arguments, CommandBuilder } from "yargs";
 import { MethodId } from "../@types";
 import { handleError, handleSuccess } from "../lib/common";
 import { runAction } from "../lib/action";
-import logger, { LoggerOptions } from "../utils/logging";
+import logger, { LoggerOptions, setupLogLevel } from "../utils/logging";
 
 type Options = LoggerOptions & {
   actionsId: MethodId;
@@ -15,7 +15,8 @@ export const builder: CommandBuilder<Options, Options> = (yargs) =>
   yargs.positional("actionsId", { type: "string", demandOption: true });
 
 export const handler = async (argv: Arguments<Options>): Promise<void> => {
-  const l = logger("run", argv);
+  setupLogLevel(argv.verbose);
+  const l = logger("run");
   const { actionsId } = argv;
 
   l.debug("Received action id", actionsId);

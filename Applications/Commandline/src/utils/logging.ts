@@ -1,5 +1,4 @@
 import consola, { ConsolaLogObject, LogLevel } from "consola";
-import { Arguments } from "yargs";
 
 export type LoggingFunction = (
   msg: ConsolaLogObject | any,
@@ -24,15 +23,13 @@ type TargetLevels =
   | "debug"
   | "trace";
 
-export default function logger(
-  context: string | undefined = undefined,
-  argv: Arguments<LoggerOptions> | undefined = undefined
-): LoggingObject {
-  let level = argv?.verbose ?? 3;
-  if (level === 0) level = 3;
+let GLOBAL_LOG_LEVEL = 3;
 
+export default function logger(
+  context: string | undefined = undefined
+): LoggingObject {
   const consolaLogger = consola.create({
-    level,
+    level: GLOBAL_LOG_LEVEL,
   });
 
   function createLogger(
@@ -58,4 +55,8 @@ export default function logger(
     debug: createLogger("debug", context),
     trace: createLogger("trace", context),
   };
+}
+
+export function setupLogLevel(logLevel: LogLevel): void {
+  GLOBAL_LOG_LEVEL = logLevel;
 }
