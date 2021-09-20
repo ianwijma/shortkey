@@ -24,7 +24,7 @@ export type TupleReturnError = [ErrorObject, any];
 export type TupleReturnSuccess<T> = [ErrorObject | null, T];
 export type TupleReturn<T> = TupleReturnError | TupleReturnSuccess<T>;
 
-export type Settings =
+export type Settings = ""; // TODO: find what what I was trying to do here :P
 
 export type AddonSetting = string; // TODO: refine the settings
 export interface AddonSettings {
@@ -34,7 +34,7 @@ export interface AddonSettings {
 export type MethodSetting = string; // TODO: refine the settings
 export interface MethodSettings {
   label: string; // name = static, label = change-able
-  value: any; 
+  value: any;
   [key: string]: MethodSetting;
 }
 

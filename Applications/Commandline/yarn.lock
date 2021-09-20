@@ -206,6 +206,11 @@ chownr@^1.1.1:
   resolved "https://registry.npmjs.org/chownr/-/chownr-1.1.4.tgz"
   integrity sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==
 
+cli-command-builder@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/cli-command-builder/-/cli-command-builder-1.0.0.tgz#2967744b3ed4e06eab4068acf219b33872316da8"
+  integrity sha512-uJW0aegma0XGcjwd3eetEVyfdeLpWHEaD9u4PlZ5auoK20HlWwhHPNsC/BTPSd4Mmjf4eH3ZKcca5H3/MHwIUw==
+
 cli-cursor@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/cli-cursor/-/cli-cursor-3.1.0.tgz#264305a7ae490d1d03bf0c9ba7c925d1753af307"
