@@ -3,4 +3,4 @@
 !.gitignore
 !readme.md
 !example
-!example/*
+!example/**
