@@ -12,7 +12,6 @@ import {
   BreakDownMethod,
   SetupMethod,
   Addon,
-  AddonSettingTypes,
 } from './addon-package'
 
 @Addon({
