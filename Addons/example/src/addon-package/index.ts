@@ -8,6 +8,10 @@ export type AddonSettingTypes =
   | AddonNumberSetting
   | AddonBooleanSetting
 
+export type AddonConfig<T> = {
+  readonly [P in keyof T as T[P] extends AddonSettingTypes ? P : never]: T[P]
+}
+
 export type MethodStringSetting = string
 export type MethodSecretSetting = string
 export type MethodNumberSetting = number
@@ -18,13 +22,15 @@ export type MethodSettingTypes =
   | MethodNumberSetting
   | MethodBooleanSetting
 
+export type MethodConfig<T> = {
+  readonly [P in keyof T as T[P] extends MethodSettingTypes ? P : never]: T[P]
+}
 interface AbstractConfig {
   name?: string
   description?: string
 }
 
 interface AbstractSettingConfig extends AbstractConfig {
-  default?: any
   min?: number
   max?: number
   validator?: (value: any) => Promise<boolean> | boolean
@@ -54,15 +60,18 @@ function formatPropertyName(propertyKey: string): string {
 }
 
 function settingConfigParserFactory(config: AbstractSettingConfig = {}) {
-  return function (target: Object, propertyKey: string) {
+  return function (target: any, propertyKey: string) {
+    const value = target[propertyKey] ?? null
+
     const propertyConfig = {
       name: formatPropertyName(propertyKey),
       validator: () => true,
+      default: value,
       ...config,
     }
 
     Object.defineProperty(target, propertyKey, {
-      value: config.default ?? null,
+      value: value,
       get: () => propertyConfig,
       set: () => {},
       enumerable: true,
@@ -77,14 +86,6 @@ export function AddonSetting(config: AddonSettingConfig) {
 
 export function MethodSetting(config: MethodSettingConfig) {
   return settingConfigParserFactory(config)
-}
-
-export type AddonConfig<T> = {
-  readonly [P in keyof T as Extract<P, AddonSettingTypes>]: T[P]
-}
-
-export type MethodConfig<T> = {
-  readonly [P in keyof T as Extract<P, MethodSettingTypes>]: T[P]
 }
 
 interface MethodSetupConfig extends AbstractConfig {}
